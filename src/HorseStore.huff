@@ -1,0 +1,80 @@
+// Send Calldata -> function Dispatch -> function
+
+// 60008060093d393df3 -> contract creation bytecode
+
+// 60018060093d393df35f -> 5f(reps PUSH0)
+
+
+ // 0xcdfead2e0000000000000000000000000000000000000000000000000000000000000001 -> calldata
+
+ // updateHorseNumber -> 0xcdfead2e
+ // readNumberOfHorses -> 0xe026c017
+
+
+/* Interfaces */
+
+#define function updateHorseNumber(uint256) nonpayable returns()
+#define function readNumberOfHorses() view returns(uint256)
+
+
+#define constant NUMBER_OF_HORSES_STORAGE_SLOT = FREE_STORAGE_POINTER() // It will asign this to slot0
+
+
+#define macro MAIN() = takes(0) returns(0) {
+    0x00 // [0]
+    calldataload // [calldataload]
+    0xe0        // [calldataload]
+    shr        // [0xe0 calldataload]
+    dup1       // [function_selector, function_selector]
+    // The __FUNC_SIG function converts updateHorseNumber to its function selector.
+    __FUNC_SIG(updateHorseNumber) // [0xcdfead2e, function_selector, function_selector]
+    eq         // [0xcdfead2e, function_selector, function_selector] --> true if func selector matches
+
+    // Jump to updateHorseNumber() if true
+    updateJump // [updateHorseNumberProgramCounter, true/false, function_selector]
+    jumpi    // [function_selector]
+
+    
+// The __FUNC_SIG function converts ReadNumberOfHorses to its function selector.
+    __FUNC_SIG(readNumberOfHorses)   // [0xe026c017, function_selector]
+    eq           // [true if the function_selector matches]
+    readJump     // [readJump, true if the function_selector matches]
+    jumpi        // [] taps on the JUMPDEST opcode if the function_selector matches
+
+    0x00 0x00 revert  // [] reverts if the function_selector doesnt match from the eq Opcode and thus making not to tap on the JUMPDEST Opcode.
+
+    updateJump:
+        SET_NUMBER_OF_HORSES()
+
+    readJump:
+        GET_NUMBER_OF_HORSES()
+}
+
+
+#define macro SET_NUMBER_OF_HORSES() = takes(0) returns (0){
+    // 1. Get the value to store from  calldata
+    0x04   // [4]
+    calldataload // [value]
+    // 2. Give it a storage slot.
+    [NUMBER_OF_HORSES_STORAGE_SLOT]  // [Storage_slot, value] 
+    // 3. Call the SStore Opcode to store the value
+    sstore
+    stop
+}
+
+#define macro GET_NUMBER_OF_HORSES() = takes(0) returns (0){
+    // 1. Get the storage slot.
+    // 2. Load the value of that slot into memory.
+    // 3. Return
+     [NUMBER_OF_HORSES_STORAGE_SLOT] // [key]
+     sload                           // [value]
+     0x00                            // [0, value]
+     mstore                          // [] // Memory:: [value]
+
+     // 0x20 == 32 bytes
+
+     0x20   // [0x20]
+     0x00  // [0x00, 0x20]
+     return  // []
+    
+}
