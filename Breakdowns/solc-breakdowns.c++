@@ -204,19 +204,15 @@ JUMP        // [calldata (of numberToUpdate), 0x43, func_selector]
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 3. Metadata
 INVALID
-
 LOG2
 PUSH5 0x6970667358
 INVALID
 SLT
 KECCAK256
-
 INVALID
 PUSH23 0xcfaa26a978c7cbd6472fe8f6998f4608429a6fb1e97f12
 CALL
-
 INVALID
-
 REVERT
 SIGNEXTEND
 MSTORE
