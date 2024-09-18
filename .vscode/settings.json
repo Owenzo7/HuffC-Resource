@@ -1,7 +1,19 @@
 {
     "cSpell.words": [
+        "ADDMOD",
+        "CALLDATALOAD",
         "calldatasize",
+        "CALLVALUE",
+        "CODECOPY",
+        "ISZERO",
+        "JUMDEST",
         "JUMPDEST",
+        "JUMPI",
+        "KECCAK",
+        "MLOAD",
+        "MSTORE",
+        "Numberofhorses",
+        "SIGNEXTEND",
         "sstore"
     ],
     "C_Cpp.errorSquiggles": "disabled"

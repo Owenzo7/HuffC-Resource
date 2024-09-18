@@ -7,11 +7,11 @@
 //////////////////////////////
 PUSH1 0x80 // [0x80]
 PUSH1 0x40   // [0x40, 0x80]                 // ---> Free memory pointer
-MSTORE     // []
+MSTORE     // Memory[0x40: 0x80]
 //////////////////////////
 
 ///////////////////////////////
-// If someone sent value to this call REVERT and If someone didnt send any value to this call, Jump to the 0x0E PC/JumpDest...
+// If someone sent value to this call REVERT and If someone didn't send any value to this call, Jump to the 0x0E PC/JumpDest...
 
 CALLVALUE    // [msg.value]
 DUP1         // [msg.value, msg.value]
@@ -74,7 +74,7 @@ JUMPI         // []
 
 PUSH0     // [0x00]
 CALLDATALOAD  // [32 bytes of calldata]
-PUSH1 0xe0   // [0xe0, 32btyes of Calldata]
+PUSH1 0xe0   // [0xe0, 32 bytes of Calldata]
 SHR         // [calldata[0:4]] <<< function_selector
 DUP1        // [func_selector, func_selector]
 PUSH4 0xcdfead2e // [0xcdfead2e, func_selector, func_selector]
@@ -89,7 +89,7 @@ PUSH4 0xe026c017  // [0xe026c017, func_selector, func_selector]
 EQ                // [func_selector == 0xe026c017, func_selector]
 PUSH1 0x45        // [0x45, func_selector == 0xe026c017, func_selector]
 JUMPI             // [func_selector]
-// if unc_selector == 0xe026c017 -> readNumberOfHorses
+// if func_selector == 0xe026c017 -> readNumberOfHorses
 ////////////////////////////////////////////////////////////////////////////
 /////////////
 // Revert JUMDEST
@@ -132,23 +132,30 @@ JUMP       // [func_selector]
 JUMPDEST  // [func_selector]
 STOP     // [func_selector]
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-JUMPDEST
-PUSH0
-SLOAD
-PUSH1 0x40
-MLOAD
-SWAP1
-DUP2
-MSTORE
-PUSH1 0x20
-ADD
-PUSH1 0x40
-MLOAD
-DUP1
-SWAP2
-SUB
-SWAP1
-RETURN
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ReadNumberOfHorses Jump dest 1
+// the only Jump dest for ReadNumberOfHorses
+JUMPDEST    // [func_selector]
+PUSH0         // [0x00, func_selector]
+SLOAD       //  [num_Horses, func_selector]
+PUSH1 0x40  //  [0x40 ,num_Horses, func_selector]
+MLOAD      // [0x80, num_Horses, func_selector]  Memory[0x40: 0x80](Free memory pointer)
+SWAP1      // [ num_Horses, 0x80, func_selector]
+DUP2       // [0x80, num_Horses, 0x80, func_selector]
+MSTORE     // [0x80, func_selector]         Memory[0x80: num_Horses]
+PUSH1 0x20  // [0x20, 0x80, func_selector]
+ADD         // [0x20 + 0x80 = 0xa0 , func_selector]
+PUSH1 0x40 // [0x40, 0xa0, func_selector]
+MLOAD     // [0x80, 0xa0, func_selector]
+DUP1     // [0x80, 0x80, 0xa0, func_selector]
+SWAP2    // [0xa0, 0x80, 0x80, func_selector]
+SUB      // [0x20, 0x80, func_selector ]
+SWAP1   // [0x80, 0x20, func_selector]
+// return a value of 32 bytes that is located at position 0x80 in memory...
+RETURN // [func_selector]
+/////////////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////
 // updateHorseNumber jump dest 2 
@@ -193,16 +200,23 @@ POP         // [0x3f,calldata (of numberToUpdate), 0x43, func_selector]
 JUMP        // [calldata (of numberToUpdate), 0x43, func_selector]
 // jump to jump dest 4...
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// 3. Metadata
 INVALID
+
 LOG2
 PUSH5 0x6970667358
 INVALID
 SLT
 KECCAK256
+
 INVALID
 PUSH23 0xcfaa26a978c7cbd6472fe8f6998f4608429a6fb1e97f12
 CALL
+
 INVALID
+
 REVERT
 SIGNEXTEND
 MSTORE
@@ -214,3 +228,4 @@ ADDMOD
 EQ
 STOP
 CALLER
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
