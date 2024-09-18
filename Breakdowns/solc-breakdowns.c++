@@ -100,6 +100,7 @@ REVERT // []
 /////////////////////////////////
 ///////////////////////////////////////////////
 // updateHorseNumber jump dest 1
+// SetUp jumping program counters in the stack..
 JUMPDEST // [func_selector]
 PUSH1 0x43 // [0x43, func_selector]
 PUSH1 0x3f // [0x3f, 0x43, func_selector]
@@ -108,12 +109,29 @@ PUSH1 0x04   // [0x04, calldatasize, 0x3f, 0x43, func_selector]
 PUSH1 0x59   // [0x59 ,0x04, calldatasize, 0x3f, 0x43, func_selector]
 JUMP         // [0x04, calldatasize, 0x3f, 0x43, func_selector]
 
-JUMPDEST
-PUSH0
-SSTORE
-JUMP
-JUMPDEST
-STOP
+////////////////////////////////////////////////////////////////////////////////
+// /////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Jump dest 4
+// We can finally run a sstore to save our value to storage.
+// We can only do this if::
+// 1. Function dispatch
+// 2. checked for msg.value
+// 3. checked the calldata is long enough
+// 4. Received the number to use from the calldata.
+
+JUMPDEST   // [calldata (of numberToUpdate), 0x43, func_selector]
+PUSH0      // [0x00, calldata (of numberToUpdate),0x43, func_selector]
+SSTORE     // [0x43, func_selector]
+JUMP       // [func_selector]
+// Jump dest 5
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Jump dest 5
+JUMPDEST  // [func_selector]
+STOP     // [func_selector]
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
 JUMPDEST
 PUSH0
 SLOAD
@@ -159,13 +177,22 @@ DUP1  // [0x00, 0x00 ,0x00, 0x04 calldatasize, 0x3f, 0x43, func_selector]
 REVERT // [0x00, 0x04 calldatasize, 0x3f, 0x43, func_selector]
 //////////////////////////////////////////////////////////////////////////////////////////
 
-JUMPDEST
-POP
-CALLDATALOAD
-SWAP2
-SWAP1
-POP
-JUMP
+/////////////////////////////////////////////////////////////////////////////////////////////////
+// UpdateHorseNumber jump dest 3
+// Grab the calldata for updating the horse number.
+// delete some stuff in the stack.
+JUMPDEST // [0x00, 0x04 calldatasize, 0x3f, 0x43, func_selector]
+POP     // [0x04 calldatasize, 0x3f, 0x43, func_selector]
+
+// Ignore the function selector, and just grab the data 
+
+CALLDATALOAD // [calldata (of numberToUpdate),calldatasize, 0x3f, 0x43, func_selector]
+SWAP2        // [0x3f, calldatasize, calldata (of numberToUpdate),  0x43, func_selector]
+SWAP1       // [calldatasize, 0x3f, calldata (of numberToUpdate),  0x43, func_selector]
+POP         // [0x3f,calldata (of numberToUpdate), 0x43, func_selector]
+JUMP        // [calldata (of numberToUpdate), 0x43, func_selector]
+// jump to jump dest 4...
+////////////////////////////////////////////////////////////////////////////////////////////////////////
 INVALID
 LOG2
 PUSH5 0x6970667358
