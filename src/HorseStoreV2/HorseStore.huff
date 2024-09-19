@@ -14,6 +14,18 @@
 
 #define constant HORSE_FED_TIMESTAMP_LOCATION = FREE_STORAGE_POINTER() // storage slot for the mapping..
 
+#define macro GET_HORSE_FED_TIMESTAMP() = takes(0) returns(0) {
+    0x04             // [0x04]
+    calldataload     // [0x04, calldataload]
+    [HORSE_FED_TIMESTAMP_LOCATION] // [HORSE_FED_TIMESTAMP_LOCATION, horseId]
+    LOAD_ELEMENT_FROM_KEYS(0x00)   // [horseFedTimestamp]
+
+    0x00   // [0x00, horseFedTimeStamp]
+    mstore // []  Memory: [0x00: horseFedTimeStamp]
+    0x20  // [0x20]
+    0x00 // [0x00, 0x20]
+    return // []
+}
 
 #define macro FEED_HORSE() = takes(0) returns(0) {
 
