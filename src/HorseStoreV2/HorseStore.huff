@@ -1,3 +1,7 @@
+/* import */
+#include "../../lib/huffmate/src/data-structures/Hashmap.huff"
+
+
 /* HorseStore Interface */
 
 #define function mintHorse() nonpayable returns()
@@ -6,6 +10,11 @@
 #define function horseIdToFedTimeStamp(uint256) view returns(uint256)
 #define function HORSE_HAPPY_IF_FED_WITHIN() view returns(uint256)
 
+// Storage slot
+
+#define constant HORSE_FED_TIMESTAMP_LOCATION = FREE_STORAGE_POINTER() // storage slot for the mapping..
+
+
 #define macro FEED_HORSE() = takes(0) returns(0) {
 
     timestamp // [timestamp]
@@ -13,6 +22,9 @@
     calldataload // [horseId, timestamp]
 
     // sstore the timestamp with the horseId key...
+    [HORSE_FED_TIMESTAMP_LOCATION] // [HORSE_FED_TIMESTAMP_LOCATION, horseId, timestamp]
+    STORE_ELEMENT_FROM_KEYS(0x00)  // []
+    stop
     
 }
 
@@ -66,7 +78,7 @@
     isHappyHorse:
         IS_HAPPY_HORSE()
     horseIdToFedTimeStamp:
-        HORSE_ID_TO_FED_TIMESTAMP()
+        GET_HORSE_FED_TIMESTAMP()
     horseHappyFedWithin:
         HORSE_HAPPY_FED_WITHIN()
 
