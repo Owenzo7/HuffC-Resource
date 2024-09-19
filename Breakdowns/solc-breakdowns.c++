@@ -125,7 +125,7 @@ JUMP         // [0x04, calldatasize, 0x3f, 0x43, func_selector]
 // 1. Function dispatch
 // 2. checked for msg.value
 // 3. checked the calldata is long enough
-// 4. Received the number to use from the calldata.
+// 4. Received the number to use from the calldata. 
 
 JUMPDEST   // [calldata (of numberToUpdate), 0x43, func_selector]
 PUSH0      // [0x00, calldata (of numberToUpdate),0x43, func_selector]
@@ -158,7 +158,7 @@ PUSH1 0x40 // [0x40, 0xa0, func_selector]
 MLOAD     // [0x80, 0xa0, func_selector]
 DUP1     // [0x80, 0x80, 0xa0, func_selector]
 SWAP2    // [0xa0, 0x80, 0x80, func_selector]
-SUB      // [0x20, 0x80, func_selector ]
+SUB      // [0x20, 0x80, func_selector]
 SWAP1   // [0x80, 0x20, func_selector]
 // return a value of 32 bytes that is located at position 0x80 in memory...
 RETURN // [func_selector]

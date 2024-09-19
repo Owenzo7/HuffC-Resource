@@ -9,7 +9,7 @@ import {Test, console2} from "forge-std/Test.sol";
 abstract contract Base_testV1 is Test {
     IHorseStore public horseStore;
 
-    function setUp() public virtual { 
+    function setUp() public virtual {
         horseStore = IHorseStore(address(new HorseStore()));
     }
 
