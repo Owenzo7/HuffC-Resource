@@ -34,8 +34,8 @@ object "HorseStoreYul" {
                 sstore(0, newNumber)
             }
 
-            function readNumber() -> storeNumber{
-                storeNumber := sload(0)
+            function readNumber() -> storedNumber {
+                storedNumber := sload(0)
             }
 
             /* -- decoding function -- */
